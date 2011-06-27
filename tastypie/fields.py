@@ -493,7 +493,7 @@ class RelatedField(ApiField):
             return related_resource.get_resource_uri(bundle)
         else:
             # ZOMG extra data and big payloads.
-            return related_resource.full_dehydrate(related_resource.instance)
+            return related_resource.full_dehydrate(related_resource.instance, request=bundle.request)
     
     def build_related_resource(self, value, request=None):
         """
@@ -508,7 +508,7 @@ class RelatedField(ApiField):
             # We got a URI. Load the object and assign it.
             try:
                 obj = self.fk_resource.get_via_uri(value)
-                return self.fk_resource.full_dehydrate(obj)
+                return self.fk_resource.full_dehydrate(obj, request)
             except ObjectDoesNotExist:
                 raise ApiFieldError("Could not find the provided object via resource URI '%s'." % value)
         elif hasattr(value, 'items'):
@@ -538,7 +538,7 @@ class RelatedField(ApiField):
             except MultipleObjectsReturned:
                 return self.fk_resource.full_hydrate(self.fk_bundle)
         elif hasattr(value, 'pk'):
-            return self.fk_resource.full_dehydrate(value)
+            return self.fk_resource.full_dehydrate(value, request)
         else:
             raise ApiFieldError("The '%s' field has was given data that was not a URI and not a dictionary-alike: %s." % (self.instance_name, value))
 
