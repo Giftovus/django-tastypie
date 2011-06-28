@@ -630,7 +630,7 @@ class Resource(object):
         Given an object instance, extract the information from it to populate
         the resource.
         """
-        bundle = Bundle(obj=obj)
+        bundle = Bundle(obj=obj, request=request)
         
         # Dehydrate each field.
         for field_name, field_object in self.fields.items():
