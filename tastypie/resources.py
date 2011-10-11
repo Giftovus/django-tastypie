@@ -1733,9 +1733,9 @@ class ModelResource(Resource):
         try:
             base_object_list = self.apply_filters(request, applicable_filters)
             return self.apply_authorization_limits(request, base_object_list)
-        except ValueError:
+        except ValueError, e:
             if settings.DEBUG and getattr(settings, 'TASTYPIE_FULL_DEBUG', False):
-                raise
+                return self._handle_500(request, e)
             else:
                 raise BadRequest("Invalid resource lookup data provided (mismatched type).")
 
@@ -1757,9 +1757,9 @@ class ModelResource(Resource):
                 raise MultipleObjectsReturned("More than '%s' matched '%s'." % (self._meta.object_class.__name__, stringified_kwargs))
 
             return object_list[0]
-        except ValueError:
+        except ValueError, e:
             if settings.DEBUG and getattr(settings, 'TASTYPIE_FULL_DEBUG', False):
-                raise
+                return self._handle_500(request, e)
             else:
                 raise NotFound("Invalid resource lookup data provided (mismatched type).")
 
