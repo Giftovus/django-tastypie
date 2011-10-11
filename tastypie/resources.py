@@ -1734,7 +1734,10 @@ class ModelResource(Resource):
             base_object_list = self.apply_filters(request, applicable_filters)
             return self.apply_authorization_limits(request, base_object_list)
         except ValueError:
-            raise BadRequest("Invalid resource lookup data provided (mismatched type).")
+            if settings.DEBUG and getattr(settings, 'TASTYPIE_FULL_DEBUG', False):
+                raise
+            else:
+                raise BadRequest("Invalid resource lookup data provided (mismatched type).")
 
     def obj_get(self, request=None, **kwargs):
         """
@@ -1755,7 +1758,10 @@ class ModelResource(Resource):
 
             return object_list[0]
         except ValueError:
-            raise NotFound("Invalid resource lookup data provided (mismatched type).")
+            if settings.DEBUG and getattr(settings, 'TASTYPIE_FULL_DEBUG', False):
+                raise
+            else:
+                raise NotFound("Invalid resource lookup data provided (mismatched type).")
 
     def obj_create(self, bundle, request=None, **kwargs):
         """
