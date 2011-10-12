@@ -996,7 +996,6 @@ class Resource(object):
 
             serialized = self.serialize(request, errors, desired_format)
             response = http.HttpBadRequest(content=serialized, content_type=build_content_type(desired_format))
-                raise BadRequest('JSONP callback name is invalid.')
             raise ImmediateHttpResponse(response=response)
 
     def rollback(self, bundles):
