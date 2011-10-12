@@ -338,7 +338,10 @@ class Resource(object):
 
         Mostly a hook, this uses the ``Serializer`` from ``Resource._meta``.
         """
-        deserialized = self._meta.serializer.deserialize(data, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        try:
+            deserialized = self._meta.serializer.deserialize(data, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        except ValueError, e:
+            raise BadRequest('Unable to parse data')
         return deserialized
 
     def alter_list_data_to_serialize(self, request, data):
@@ -993,6 +996,7 @@ class Resource(object):
 
             serialized = self.serialize(request, errors, desired_format)
             response = http.HttpBadRequest(content=serialized, content_type=build_content_type(desired_format))
+                raise BadRequest('JSONP callback name is invalid.')
             raise ImmediateHttpResponse(response=response)
 
     def rollback(self, bundles):
