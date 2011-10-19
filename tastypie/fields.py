@@ -583,6 +583,12 @@ class RelatedField(ApiField):
             'related_name': related_name,
         }
 
+        # Handle the unusual case where the data in a related field is already
+        # hydrated.  This happens when patched_detail() is used on a field
+        # where full=True.  The related field will already contain a bundle.
+        if isinstance(value, Bundle):
+            value = value.obj
+
         if isinstance(value, basestring):
             # We got a URI. Load the object and assign it.
             return self.resource_from_uri(self.fk_resource, value, **kwargs)
