@@ -731,7 +731,6 @@ class ToManyField(RelatedField):
             else:
                 raise ApiFieldError("The '%s' field has no data and doesn't allow a null value." % self.instance_name)
         if type(bundle.data.get(self.instance_name)) is not list:
-            import ipdb; ipdb.set_trace()
             raise ApiFieldError("The '%s' field has must contain a list." % self.instance_name)
 
         m2m_hydrated = []
