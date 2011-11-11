@@ -1,6 +1,8 @@
 import logging
 import warnings
 import django
+import time
+import datetime
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
@@ -9,6 +11,7 @@ from django.db import transaction
 from django.db.models.sql.constants import QUERY_TERMS, LOOKUP_SEP
 from django.http import HttpResponse, HttpResponseNotFound
 from django.utils.cache import patch_cache_control
+from django.utils import formats
 from tastypie.authentication import Authentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.bundle import Bundle
@@ -23,6 +26,8 @@ from tastypie.throttle import BaseThrottle
 from tastypie.utils import is_valid_jsonp_callback_value, dict_strip_unicode_keys, trailing_slash
 from tastypie.utils.mime import determine_format, build_content_type
 from tastypie.validation import Validation
+
+
 try:
     set
 except NameError:
@@ -1616,6 +1621,7 @@ class ModelResource(Resource):
             if not field_name in self.fields:
                 # It's not a field we know about. Move along citizen.
                 continue
+                pass
 
             if len(filter_bits) and filter_bits[-1] in QUERY_TERMS.keys():
                 filter_type = filter_bits.pop()
@@ -1635,6 +1641,37 @@ class ModelResource(Resource):
                     value = filters.getlist(filter_expr)
                 else:
                     value = value.split(',')
+
+            # Attempt to parse the date.  Django only parses the date using
+            # DATE_INPUT_FORMATS when validating forms.  Attempt to parse
+            # the date.
+            if type(self.fields[field_name]) is fields.DateField:
+                for format in formats.get_format('DATE_INPUT_FORMATS'):
+                    try:
+                        if type(value) is list:
+                            value = [datetime.date(*time.strptime(v, format)[:3]) for v in value]
+                        else:
+                            value = datetime.date(*time.strptime(value, format)[:3])
+                        break
+                    except ValueError, e:
+                        continue
+                        pass
+                else:
+                    raise ValidationError("Invalid date format.")
+            # Same thing with datetime
+            elif type(self.fields[field_name]) is fields.DateTimeField:
+                for format in formats.get_format('DATETIME_INPUT_FORMATS'):
+                    try:
+                        if type(value) is list:
+                            value = [datetime.datetime(*time.strptime(v, format)[:3]) for v in value]
+                        else:
+                            value = datetime.datetime(*time.strptime(value, format)[:3])
+                        break
+                    except ValueError, e:
+                        continue
+                        pass
+                else:
+                    raise ValidationError("Invalid datetime format.")
 
             db_field_name = LOOKUP_SEP.join(lookup_bits)
             qs_filter = "%s%s%s" % (db_field_name, LOOKUP_SEP, filter_type)
