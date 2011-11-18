@@ -1527,7 +1527,7 @@ class ModelResource(Resource):
             if cls.should_skip_field(f):
                 continue
 
-            if not add_implicit:
+            if not add_implicit and f.name not in fields:
                 continue 
 
             api_field_class = cls.api_field_from_django_field(f)
