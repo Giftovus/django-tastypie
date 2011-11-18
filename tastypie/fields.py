@@ -599,7 +599,7 @@ class RelatedField(ApiField):
 
             # Check to see if we nested creates or updates
             if self._resource and not self._resource._meta.allow_nested_create_update:
-                raise ApiFieldError("The '%s' field cannot contain nested data." % (self.instance_name, value))
+                raise ApiFieldError("The '%s' field cannot contain nested data." % self.instance_name)
             return self.resource_from_data(self.fk_resource, value, **kwargs)
         elif hasattr(value, 'pk'):
             # We've got an object with a primary key.
