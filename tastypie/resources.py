@@ -74,6 +74,7 @@ class ResourceOptions(object):
     queryset = None
     fields = []
     excludes = []
+    implicit_fields = True
     include_resource_uri = True
     include_absolute_url = False
     always_return_data = False
@@ -1505,6 +1506,10 @@ class ModelResource(Resource):
         if not cls._meta.object_class:
             return final_fields
 
+        # If implicit_fields is true, all of the djago model's fields 
+        # are automatically added if fields[] and excludes[] are empty
+        add_implicit = not (fields or excludes) and cls._meta.implicit_fields
+
         for f in cls._meta.object_class._meta.fields:
             # If the field name is already present, skip
             if f.name in cls.base_fields:
@@ -1521,7 +1526,8 @@ class ModelResource(Resource):
             if cls.should_skip_field(f):
                 continue
 
-            api_field_class = cls.api_field_from_django_field(f)
+            if add_implicit:
+                api_field_class = cls.api_field_from_django_field(f)
 
             kwargs = {
                 'attribute': f.name,
