@@ -596,6 +596,10 @@ class RelatedField(ApiField):
             # We've got a data dictionary.
             # Since this leads to creation, this is the only one of these
             # methods that might care about "parent" data.
+
+            # Check to see if we nested creates or updates
+            if self._resource and not self._resource._meta.allow_nested_create_update:
+                raise ApiFieldError("The '%s' field cannot contain nested data." % (self.instance_name, value))
             return self.resource_from_data(self.fk_resource, value, **kwargs)
         elif hasattr(value, 'pk'):
             # We've got an object with a primary key.

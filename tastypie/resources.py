@@ -78,6 +78,7 @@ class ResourceOptions(object):
     include_resource_uri = True
     include_absolute_url = False
     always_return_data = False
+    allow_nested_create_update = True
 
     def __new__(cls, meta=None):
         overrides = {}
