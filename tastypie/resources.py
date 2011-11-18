@@ -1526,8 +1526,10 @@ class ModelResource(Resource):
             if cls.should_skip_field(f):
                 continue
 
-            if add_implicit:
-                api_field_class = cls.api_field_from_django_field(f)
+            if not add_implicit:
+                continue 
+
+            api_field_class = cls.api_field_from_django_field(f)
 
             kwargs = {
                 'attribute': f.name,
