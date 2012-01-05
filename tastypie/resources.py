@@ -1672,9 +1672,9 @@ class ModelResource(Resource):
                 for format in formats.get_format('DATETIME_INPUT_FORMATS'):
                     try:
                         if type(value) is list:
-                            value = [datetime.datetime(*time.strptime(v, format)[:3]) for v in value]
+                            value = [datetime.datetime.strptime(value, format) for v in value]
                         else:
-                            value = datetime.datetime(*time.strptime(value, format)[:3])
+                            value = datetime.datetime.strptime(value, format)
                         break
                     except ValueError, e:
                         continue
